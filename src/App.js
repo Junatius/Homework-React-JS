@@ -1,9 +1,8 @@
-
-import * as React from 'react';
+import React, { useState } from 'react';
 
 function Board() {
-  const [squares, setSquares] = React.useState(Array(9).fill(null));
-  const [nextValue, setNextValue] = React.useState(calculateNextValue(squares));
+  const [squares, setSquares] = useState(Array(9).fill(null));
+  const [nextValue, setNextValue] = useState(calculateNextValue(squares));
   const winner = calculateWinner(squares);
 
   function selectSquare(square) {
@@ -23,62 +22,70 @@ function Board() {
 
   function renderSquare(i) {
     return (
-      <button className="square" onClick={() => selectSquare(i)}>
+      <button
+        key={i}
+        className="w-16 h-16 bg-gray-200 border border-gray-300 text-3xl font-bold focus:outline-none"
+        onClick={() => selectSquare(i)}
+      >
         {squares[i]}
       </button>
     );
   }
 
+  const boardRows = Array.from({ length: 3 }, (_, row) => (
+    <div key={row} className="grid grid-cols-3 gap-2 mb-2">
+      {Array.from({ length: 3 }, (_, col) => (
+        <div key={col} className="relative">
+          {renderSquare(row * 3 + col)}
+          <div
+            className="absolute w-px bg-gray-300"
+            style={{ left: 'calc(100% - 1px)' }}
+          />
+        </div>
+      ))}
+    </div>
+  ));
+  
   return (
-    <div>
-      <div >STATUS: {calculateStatus(winner, squares, nextValue)}</div>
-      <div >
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
+    <div className="max-w-md mx-auto mt-10 p-4 border rounded bg-gray-100">
+      <div className="mb-4 text-center font-bold text-xl">
+        STATUS: {calculateStatus(winner, squares, nextValue)}
       </div>
-      <div >
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
+      {boardRows}
+      <div className="flex justify-center items-center mt-2">
+        <button
+          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue active:bg-blue-800"
+          onClick={restart}
+        >
+          Restart
+        </button>
       </div>
-      <div >
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-      <button onClick={restart}>
-        restart
-      </button>
     </div>
   );
 }
 
 function Game() {
   return (
-    <div >
-      <div >
+    <div className="flex justify-center items-center h-screen">
+      <div>
         <Board />
       </div>
     </div>
   );
 }
 
-// eslint-disable-next-line no-unused-vars
 function calculateStatus(winner, squares, nextValue) {
   return winner
     ? `Winner: ${winner}`
     : squares.every(Boolean)
-      ? `Scratch: Cat's game`
-      : `Next player: ${nextValue}`;
+    ? `Scratch: Cat's game`
+    : `Next player: ${nextValue}`;
 }
 
-// eslint-disable-next-line no-unused-vars
 function calculateNextValue(squares) {
   return squares.filter(Boolean).length % 2 === 0 ? 'X' : 'O';
 }
 
-// eslint-disable-next-line no-unused-vars
 function calculateWinner(squares) {
   const lines = [
     [0, 1, 2],
